@@ -40,19 +40,21 @@ const TODAY = fmt();
 const DOW = new Date().getDay();
 
 const ST = {
-  get: async (k) => {
-    try {
-      const r = await window.storage.get(k);
-      return r ? JSON.parse(r.value) : null;
-    } catch {
-      return null;
-    }
+  get: async (k: string) => {
+    try { return JSON.parse(localStorage.getItem(k) || 'null'); }
+    catch { return null; }
   },
-  set: async (k, v) => {
-    try {
-      await window.storage.set(k, JSON.stringify(v));
-    } catch {}
+  set: async (k: string, v: any) => {
+    try { localStorage.setItem(k, JSON.stringify(v)); }
+    catch {}
   },
+  delete: async (k: string) => {
+    localStorage.removeItem(k);
+  },
+  list: async (prefix?: string) => {
+    const keys = Object.keys(localStorage).filter(k => prefix ? k.startsWith(prefix) : true);
+    return { keys };
+  }
 };
 
 const pCol = (p) => (p === "high" ? C.hi : p === "medium" ? C.md : C.lo);
