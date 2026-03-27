@@ -81,11 +81,14 @@ export default function App() {
   // ─── FIREBASE LISTENER ─────────────────────────────────────────────────────
   useEffect(() => {
     const unsub = onValue(ref(db, 'dd'), snap => {
-      if (writing.current) return;
-      const d = snap.val() || {};
-      let t = Object.values(d.tasks || {});
-      t = t.map(x => x.type==='daily' && x.doneDate!==TODAY ? {...x, done:false, doneDate:null} : x)
-           .filter(x => !(x.type==='one-time' && x.done));
+  if (writing.current) return;
+  const d = (snap.val() as any) || {};
+  let t: any[] = Object.values(d.tasks || {});
+  t = t.map((x: any) =>
+    x.type === 'daily' && x.doneDate !== TODAY
+      ? { ...x, done: false, doneDate: null }
+      : x
+  ).filter((x: any) => !(x.type === 'one-time' && x.done));
       setTasks(t);
       setNz(d['nz_'+TODAY]  || { Fajr:false, Dhuhr:false, Asr:false, Maghrib:false, Isha:false });
       setQr(d['qr_'+TODAY]  || false);
