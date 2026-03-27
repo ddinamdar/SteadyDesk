@@ -1,3 +1,18 @@
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, set, get } from "firebase/database";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCWmb-KnKYLDMfcs3xcpigKmX6gp0vcDYY",
+  authDomain: "dailydrivee29.firebaseapp.com",
+  databaseURL: "https://dailydrivee29-default-rtdb.firebaseio.com",
+  projectId: "dailydrivee29",
+  storageBucket: "dailydrivee29.firebasestorage.app",
+  messagingSenderId: "475363080451",
+  appId: "1:475363080451:web:bb19dcef3a4212278a9136"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 import { useState, useEffect, useRef } from "react";
 import {
   BarChart,
@@ -41,22 +56,16 @@ const DOW = new Date().getDay();
 
 const ST = {
   get: async (k: string) => {
-    try { return JSON.parse(localStorage.getItem(k) || 'null'); }
-    catch { return null; }
+    try {
+      const snap = await get(ref(db, k));
+      return snap.exists() ? snap.val() : null;
+    } catch { return null; }
   },
   set: async (k: string, v: any) => {
-    try { localStorage.setItem(k, JSON.stringify(v)); }
+    try { await set(ref(db, k), v); }
     catch {}
   },
-  delete: async (k: string) => {
-    localStorage.removeItem(k);
-  },
-  list: async (prefix?: string) => {
-    const keys = Object.keys(localStorage).filter(k => prefix ? k.startsWith(prefix) : true);
-    return { keys };
-  }
 };
-
 const pCol = (p) => (p === "high" ? C.hi : p === "medium" ? C.md : C.lo);
 const pLt = (p) => (p === "high" ? C.hiL : p === "medium" ? C.mdL : C.loL);
 const pLbl = (p) =>
